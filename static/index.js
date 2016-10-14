@@ -83,8 +83,8 @@ window.addEventListener('beforeinstallprompt', async e => {
     e.preventDefault();
     await logs.logClickableLink('Show the prompt after all.');
     try {
-      await e.prompt();
-      logs.logMessage('prompt() resolved');
+      let {userChoice} = await e.prompt();
+      logMessage('prompt() resolved with {userChoice: ' + userChoice + '}');
     } catch (ex) {
       logs.logMessage('prompt() rejected with ' + ex, true);
     }
