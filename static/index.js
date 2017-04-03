@@ -81,8 +81,27 @@ window.addEventListener('appinstalled', e => {
   logs.logMessage('Got appinstalled!!!');
 });
 
+var giraLogSection;
+
+async function doGiraTimingAttack() {
+  const kQueries = 1000;
+  let startTime = performance.now();
+  for (let i = 0; i < kQueries; i++) {
+    let x;
+    x = await navigator.getInstalledRelatedApps();
+  }
+
+  let endTime = performance.now();
+
+  giraLogSection.logMessage(
+      kQueries + ' queries to getInstalledRelatedApps took ' +
+      (endTime - startTime) + 'ms (' + ((endTime - startTime) / kQueries) +
+      ' each)');
+}
+
 async function showInstalledRelatedApps() {
   let logs = createLogSection('getInstalledRelatedApps');
+  giraLogSection = logs;
   if (navigator.getInstalledRelatedApps === undefined) {
     logs.logMessage('navigator.getInstalledRelatedApps is undefined');
     return;
@@ -107,4 +126,11 @@ async function showInstalledRelatedApps() {
 
 window.addEventListener('load', e => {
   showInstalledRelatedApps();
+
+  if (navigator.getInstalledRelatedApps !== undefined) {
+    document.querySelector('#timingattack')
+        .addEventListener('click', doGiraTimingAttack);
+  } else {
+    document.querySelector('#timingattack').disabled = true;
+  }
 });
