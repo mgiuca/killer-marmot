@@ -12,6 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Modifies the old BeforeInstallPromptEvent.prompt() API (which resolves with
+// void) to match the new specification (resolves with the user choice).
+(function() {
+  // Only apply the polyfill if BeforeInstallPromptEvent has a prompt method and
+  // userChoice attribute (this is the old API that we are wrapping over).
+  if (BeforeInstallPromptEvent === undefined ||
+      !BeforeInstallPromptEvent.prototype.hasOwnProperty('prompt') ||
+      !BeforeInstallPromptEvent.prototype.hasOwnProperty('userChoice')) {
+    return;
+  }
+
+  const oldPrompt = BeforeInstallPromptEvent.prototype.prompt;
+
+  BeforeInstallPromptEvent.prototype.prompt = async function() {
+    oldPrompt.apply(this);
+    const { outcome } = await this.userChoice;
+    return {userChoice: outcome};
+  }
+})();
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(registration => {
     // Registration was successful
