@@ -54,46 +54,27 @@ function createLogSection(title) {
   return new LogSection(document.querySelector('#logs'), title);
 }
 
-async function logUserChoice(section, e) {
-  section.logMessage('userChoice is: ' + e.userChoice);
-  await sleep(1000);
-  if (!e) {
-    section.logMessage('No event????', true);
-    return;
-  }
+window.addEventListener("load", event => {
+  installButton = document.querySelector("#installButton");
+});
 
-  section.logMessage('Timer time!');
-  try {
-    let {platform, outcome} = await e.userChoice;
-    section.logMessage('platform is: \'' + platform + '\'');
-    section.logMessage('outcome is: \'' + outcome + '\'');
-  } catch (e) {
-    section.logMessage('Boo! an error', true);
-  }
-}
+window.addEventListener("beforeinstallprompt", event => {
+  // Suppress automatic prompting.
+  event.preventDefault();
 
-window.addEventListener('beforeinstallprompt', async e => {
-  let logs = createLogSection('beforeinstallprompt');
-  logs.logMessage('Got beforeinstallprompt!!!');
-  logs.logMessage('platforms: ' + e.platforms);
-  logs.logMessage('Should I cancel it? Hmmmm .... ');
+  // Show the (disabled-by-default) install button. This button
+  // resolves the installButtonClicked promise when clicked.
+  installButton.disabled = false;
 
-  if (Math.random() > 0.5) {
-    logs.logMessage('Yeah why not. Cancelled!');
-    e.preventDefault();
-    await logs.logClickableLink('Show the prompt after all.');
-    try {
-      let {userChoice} = await e.prompt();
-      logMessage('prompt() resolved with {userChoice: ' + userChoice + '}');
-    } catch (ex) {
-      logs.logMessage('prompt() rejected with ' + ex, true);
-    }
-    logUserChoice(logs, e);
-    return;
-  }
+  // Wait for the user to click the button.
+  installButton.addEventListener("click", async e => {
+    // The prompt() method can only be used once.
+    installButton.disabled = true;
 
-  logs.logMessage('No, let\'s see the banner');
-  logUserChoice(logs, e);
+    // Show the prompt.
+    const { userChoice } = await event.prompt();
+    console.info(`user choice was: ${userChoice}`);
+  });
 });
 
 window.addEventListener('appinstalled', e => {
