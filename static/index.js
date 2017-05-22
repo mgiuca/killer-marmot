@@ -35,7 +35,7 @@ function createLogSection(title) {
 }
 
 async function logUserChoice(section, e) {
-  section.logMessage('userChoice is: ' + e.userChoice);
+  section.logMessage('userChoice is: ' + prettyPrint(e.userChoice));
   await sleep(1000);
   if (!e) {
     section.logMessage('No event????', true);
@@ -44,18 +44,16 @@ async function logUserChoice(section, e) {
 
   section.logMessage('Timer time!');
   try {
-    let {platform, outcome} = await e.userChoice;
-    section.logMessage('platform is: \'' + platform + '\'');
-    section.logMessage('outcome is: \'' + outcome + '\'');
+    let result = await e.userChoice;
+    section.logMessage('userChoice resolved with: ' + prettyPrint(result));
   } catch (e) {
-    section.logMessage('Boo! an error', true);
+    section.logMessage('userChoice rejected with: ' + prettyPrint(e), true);
   }
 }
 
 window.addEventListener('beforeinstallprompt', async e => {
   let logs = createLogSection('beforeinstallprompt');
-  logs.logMessage('Got beforeinstallprompt!!!');
-  logs.logMessage('platforms: ' + e.platforms);
+  logs.logMessage('Got beforeinstallprompt: ' + prettyPrint(e));
   logs.logMessage('Should I cancel it? Hmmmm .... ');
 
   if (Math.random() > 0.5) {
@@ -63,10 +61,10 @@ window.addEventListener('beforeinstallprompt', async e => {
     e.preventDefault();
     await logs.logClickableLink('Show the prompt after all.');
     try {
-      await e.prompt();
-      logs.logMessage('prompt() resolved');
+      let result = await e.prompt();
+      logs.logMessage('prompt() resolved with: ' + prettyPrint(result));
     } catch (ex) {
-      logs.logMessage('prompt() rejected with ' + ex, true);
+      logs.logMessage('prompt() rejected with: ' + prettyPrint(ex), true);
     }
     logUserChoice(logs, e);
     return;
@@ -92,17 +90,12 @@ async function showInstalledRelatedApps() {
   try {
     relatedApps = await navigator.getInstalledRelatedApps();
   } catch (error) {
-    logs.logMessage('getInstalledRelatedApps error: ' + error, true);
+    logs.logMessage('getInstalledRelatedApps error: ' +
+                    prettyPrint(error), true);
     return;
   }
-  logs.logMessage('Installed related apps:');
-  for (let i = 0; i < relatedApps.length; i++) {
-    let app = relatedApps[i];
-    text = `id: ${JSON.stringify(app.id)}, `
-           + `platform: ${JSON.stringify(app.platform)}, `
-           + `url: ${JSON.stringify(app.url)}`;
-    logs.logMessage(text);
-  }
+  logs.logMessage('getInstalledRelatedApps returned: ' +
+                  prettyPrint(relatedApps));
 }
 
 window.addEventListener('load', e => {
