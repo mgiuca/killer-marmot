@@ -12,6 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Pretty-prints a JavaScript value, to a string.
+function prettyPrint(value) {
+  let type = typeof(value);
+  if (value === undefined || value === null || type === 'boolean' ||
+      type === 'number' || type === 'string') {
+    return JSON.stringify(value);
+  }
+
+  if (type === 'function')
+    return '<function>';
+
+  if (type !== 'object')
+    return value.toString();
+
+  // TODO(mgiuca): Automatically reveal the value of the promise, once it
+  // resolves.
+  if (value instanceof Promise)
+    return '<promise>';
+
+  if (value instanceof Array) {
+    let elementStrings = [];
+    for (const element of value)
+      elementStrings.push(prettyPrint(element));
+    return '[' + elementStrings.join(', ') + ']';
+  }
+
+  // Treat as a dictionary.
+  // TODO(mgiuca): This isn't finding the keys of built-in objects.
+  let keys = Object.keys(value);
+  keys.sort();
+  let elementStrings = [];
+  for (const element of keys)
+    elementStrings.push(element + ': ' + prettyPrint(value[element]));
+  return '{' + elementStrings.join(', ') + '}';
+}
+
 class LogSection {
   // Creates a new <div> for logs relating to a particular function.
   constructor(logsDiv, title) {
