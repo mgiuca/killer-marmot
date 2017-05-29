@@ -12,6 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Database of known built-in types and the "important" properties to log.
+BUILT_IN_PROPERTY_MAP = {
+  'BeforeInstallPromptEvent': ['platforms', 'userChoice'],
+};
+
+// Determines whether a particular property (key) should be shown for an object.
+function shouldShowProperty(object, key) {
+  if (!object.constructor)
+    return true;
+
+  let name = object.constructor.name;
+  let allowedKeys = BUILT_IN_PROPERTY_MAP[name];
+  if (allowedKeys === undefined)
+    return true;
+
+  return allowedKeys.includes(key);
+}
+
 // Pretty-prints a JavaScript value, to a string.
 function prettyPrint(value) {
   let type = typeof(value);
@@ -39,12 +57,14 @@ function prettyPrint(value) {
   }
 
   // Treat as a dictionary.
-  // TODO(mgiuca): This isn't finding the keys of built-in objects.
-  let keys = Object.keys(value);
-  keys.sort();
   let elementStrings = [];
-  for (const element of keys)
-    elementStrings.push(element + ': ' + prettyPrint(value[element]));
+  for (const key in value) {
+    if (!shouldShowProperty(value, key))
+      continue;
+
+    elementStrings.push(key + ': ' + prettyPrint(value[key]));
+  }
+  elementStrings.sort();
   return '{' + elementStrings.join(', ') + '}';
 }
 
