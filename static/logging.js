@@ -30,8 +30,14 @@ function shouldShowProperty(object, key) {
   return allowedKeys.includes(key);
 }
 
-// Pretty-prints a JavaScript value, to a string.
-function prettyPrint(value) {
+// TODO: prettyPrintToString should return undefined for promises, arrays and
+// objects. prettyPrint should construct them from DOM elements instead of
+// string concatenation.
+
+// Pretty-prints a JavaScript value to a string. Only primitives are supported;
+// other types must be pretty-printed to a DOM element, and return undefined
+// here.
+function prettyPrintToString(value) {
   let type = typeof(value);
   if (value === undefined || value === null || type === 'boolean' ||
       type === 'number' || type === 'string') {
@@ -52,7 +58,7 @@ function prettyPrint(value) {
   if (value instanceof Array) {
     let elementStrings = [];
     for (const element of value)
-      elementStrings.push(prettyPrint(element));
+      elementStrings.push(prettyPrintToString(element));
     return '[' + elementStrings.join(', ') + ']';
   }
 
@@ -62,10 +68,17 @@ function prettyPrint(value) {
     if (!shouldShowProperty(value, key))
       continue;
 
-    elementStrings.push(key + ': ' + prettyPrint(value[key]));
+    elementStrings.push(key + ': ' + prettyPrintToString(value[key]));
   }
   elementStrings.sort();
   return '{' + elementStrings.join(', ') + '}';
+}
+
+// Pretty-prints a JavaScript value. Returns a DOM element.
+function prettyPrint(value) {
+  let prettyPrintedString = prettyPrintToString(value);
+  if (prettyPrintedString !== undefined)
+    return document.createTextNode(prettyPrintedString);
 }
 
 class LogSection {
