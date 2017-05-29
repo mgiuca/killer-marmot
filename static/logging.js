@@ -80,32 +80,44 @@ class LogSection {
     titleH2.appendChild(document.createTextNode(title));
   }
 
-  // Logs a message to the given section, and console.
-  logMessage(message, isError) {
+  // Low-level log (takes an error param). See logMessage or logError.
+  logElements(isError, ...elements) {
     // Insert a paragraph into the section.
     var p = document.createElement('p');
     this.div.appendChild(p);
-    p.appendChild(document.createTextNode(message));
-    if (isError)
-      p.className = 'error';
+    for (const element of elements) {
+      let node = element;
+      if (typeof(element) === 'string')
+        node = document.createTextNode(element);
+
+      p.appendChild(node);
+    }
 
     // Also log to the console.
     if (isError)
-      console.error(message);
+      console.error(p.textContent);
     else
-      console.log(message);
+      console.log(p.textContent);
+  }
+
+  // Logs text or DOM elements into the section.
+  logMessage(...elements) {
+    this.logElements(false, ...elements);
+  }
+
+  // Logs text or DOM elements into the section.
+  logError(...elements) {
+    this.logElements(true, ...elements);
   }
 
   // Logs a clickable link to the given section. Returns a promise that resolves
   // when the user clicks the link.
   logClickableLink(text) {
-    // Insert a paragraph into the section.
-    var p = document.createElement('p');
-    this.div.appendChild(p);
     var a = document.createElement('a');
-    p.appendChild(a);
     a.setAttribute('href', '');
     a.appendChild(document.createTextNode(text));
+
+    this.logElements(false, a);
 
     return new Promise((resolve, reject) => {
       a.addEventListener('click', e => {

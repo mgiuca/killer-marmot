@@ -35,25 +35,25 @@ function createLogSection(title) {
 }
 
 async function logUserChoice(section, e) {
-  section.logMessage('userChoice is: ' + prettyPrint(e.userChoice));
+  section.logMessage('userChoice is: ', prettyPrint(e.userChoice));
   await sleep(1000);
   if (!e) {
-    section.logMessage('No event????', true);
+    section.logError('No event????');
     return;
   }
 
   section.logMessage('Timer time!');
   try {
     let result = await e.userChoice;
-    section.logMessage('userChoice resolved with: ' + prettyPrint(result));
+    section.logMessage('userChoice resolved with: ', prettyPrint(result));
   } catch (e) {
-    section.logMessage('userChoice rejected with: ' + prettyPrint(e), true);
+    section.logError('userChoice rejected with: ', prettyPrint(e));
   }
 }
 
 window.addEventListener('beforeinstallprompt', async e => {
   let logs = createLogSection('beforeinstallprompt');
-  logs.logMessage('Got beforeinstallprompt: ' + prettyPrint(e));
+  logs.logMessage('Got beforeinstallprompt: ', prettyPrint(e));
   logs.logMessage('Should I cancel it? Hmmmm .... ');
 
   if (Math.random() > 0.5) {
@@ -62,9 +62,9 @@ window.addEventListener('beforeinstallprompt', async e => {
     await logs.logClickableLink('Show the prompt after all.');
     try {
       let result = await e.prompt();
-      logs.logMessage('prompt() resolved with: ' + prettyPrint(result));
+      logs.logMessage('prompt() resolved with: ', prettyPrint(result));
     } catch (ex) {
-      logs.logMessage('prompt() rejected with: ' + prettyPrint(ex), true);
+      logs.logError('prompt() rejected with: ', prettyPrint(ex));
     }
     logUserChoice(logs, e);
     return;
@@ -90,11 +90,10 @@ async function showInstalledRelatedApps() {
   try {
     relatedApps = await navigator.getInstalledRelatedApps();
   } catch (error) {
-    logs.logMessage('getInstalledRelatedApps error: ' +
-                    prettyPrint(error), true);
+    logs.logError('getInstalledRelatedApps error: ', prettyPrint(error));
     return;
   }
-  logs.logMessage('getInstalledRelatedApps returned: ' +
+  logs.logMessage('getInstalledRelatedApps returned: ',
                   prettyPrint(relatedApps));
 }
 
