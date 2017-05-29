@@ -55,23 +55,7 @@ function prettyPrintToString(value) {
   if (value instanceof Promise)
     return '<promise>';
 
-  if (value instanceof Array) {
-    let elementStrings = [];
-    for (const element of value)
-      elementStrings.push(prettyPrintToString(element));
-    return '[' + elementStrings.join(', ') + ']';
-  }
-
-  // Treat as a dictionary.
-  let elementStrings = [];
-  for (const key in value) {
-    if (!shouldShowProperty(value, key))
-      continue;
-
-    elementStrings.push(key + ': ' + prettyPrintToString(value[key]));
-  }
-  elementStrings.sort();
-  return '{' + elementStrings.join(', ') + '}';
+  return undefined;
 }
 
 // Pretty-prints a JavaScript value. Returns a DOM element.
@@ -79,6 +63,33 @@ function prettyPrint(value) {
   let prettyPrintedString = prettyPrintToString(value);
   if (prettyPrintedString !== undefined)
     return document.createTextNode(prettyPrintedString);
+
+  let span = document.createElement('span');
+
+  if (value instanceof Array) {
+    span.appendChild(document.createTextNode('['));
+    for (const element of value) {
+      span.appendChild(prettyPrint(element));
+      span.appendChild(document.createTextNode(', '));
+      // TODO(mgiuca): No comma on last.
+    }
+    span.appendChild(document.createTextNode(']'));
+    return span;
+  }
+
+  // Treat as a dictionary.
+  // TODO(mgiuca): Sort keys.
+  span.appendChild(document.createTextNode('{'));
+  for (const key in value) {
+    if (!shouldShowProperty(value, key))
+      continue;
+
+    span.appendChild(document.createTextNode(key + ': '));
+    span.appendChild(prettyPrint(value[key]));
+    span.appendChild(document.createTextNode(', '));
+  }
+  span.appendChild(document.createTextNode('}'));
+  return span;
 }
 
 class LogSection {
