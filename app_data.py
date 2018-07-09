@@ -26,6 +26,8 @@ DEFAULT_VIEWPORT = 'width=device-width, initial-scale=1'
 # Manifest defaults.
 DEFAULT_NAME = 'Killer Marmot'
 DEFAULT_SHORT_NAME = 'Marmot'
+DEFAULT_DESCRIPTION = ('A Progressive Web App for testing Progressive Web App '
+                       'support across various browsers.')
 DEFAULT_START_URL = '.'
 DEFAULT_DISPLAY = 'standalone'
 RELATED_APP_PLAY = collections.OrderedDict([

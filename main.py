@@ -63,6 +63,7 @@ def build_manifest(appname, set_icons=True):
     manifest = collections.OrderedDict()
     if 'web_stuff' in data and data['web_stuff']:
       manifest['name'] = app_data.DEFAULT_NAME
+      manifest['description'] = app_data.DEFAULT_DESCRIPTION
       manifest['short_name'] = app_data.DEFAULT_SHORT_NAME
       if set_icons:
         manifest['icons'] = app_data.DEFAULT_ICONS
